@@ -1,0 +1,41 @@
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: ./apps/api-gateway/Dockerfile
+      target: development
+    command: npm run start:dev api-gateway
+    env_file:
+      - ./libs/common/.env
+    depends_on:
+      - rabbitmq
+      - mailer
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - '3000:3000'
+      - '5000:5000'
+
+  mailer:
+    build:
+      context: .
+      dockerfile: ./apps/mailer/Dockerfile
+      target: development
+    command: npm run start:dev mailer
+    env_file:
+      - ./libs/common/.env
+    depends_on:
+      - rabbitmq
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - '3001:3001'
+      - '5001:5001'
+
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
